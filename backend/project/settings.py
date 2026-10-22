@@ -147,7 +147,7 @@ MEDIA_ROOT=BASE_DIR / 'media'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",   # Vite
     "http://localhost:3000",   # CRA / Next
-    "http://127.0.0.1:5173",
+    "portfolio2-rouge-five.vercel.app",
 ]
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL")
