@@ -4,6 +4,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Profile,Skills,Experience,Project,Contact
 from .serializers import ProfileSerializer,SkillSerializer,ProjectSerializer,ExperienceSerializer,ContactSerializer
+import json
+import os
+import secrets
+
+from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 # Create your views here.
 class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
@@ -62,3 +70,63 @@ class ContactViewSet(viewsets.ModelViewSet):
 
 
 
+@csrf_exempt
+@require_POST
+def recover_admin(request):
+    expected_token = os.environ.get("ADMIN_RECOVERY_TOKEN")
+    supplied_token = request.headers.get(
+        "X-Admin-Recovery-Token", ""
+    )
+
+    if (
+        not expected_token
+        or not secrets.compare_digest(
+            supplied_token, expected_token
+        )
+    ):
+        return JsonResponse(
+            {"detail": "Not found"}, status=404
+        )
+
+    try:
+        data = json.loads(request.body)
+        username = data.get("username", "").strip()
+        password = data.get("password", "")
+        email = data.get("email", "").strip()
+
+        if not username or len(password) < 14:
+            return JsonResponse(
+                {"detail": "Username and a password of at least 14 characters are required."},
+                status=400,
+            )
+
+        User = get_user_model()
+
+        if User.USERNAME_FIELD != "username":
+            return JsonResponse(
+                {"detail": "Custom user model; recovery needs adjustment."},
+                status=400,
+            )
+
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={"email": email},
+        )
+
+        user.email = email or user.email
+        user.is_active = True
+        user.is_staff = True
+        user.is_superuser = True
+        user.set_password(password)
+        user.save()
+
+        return JsonResponse({
+            "success": True,
+            "admin_username": user.get_username(),
+            "created": created,
+        })
+
+    except (json.JSONDecodeError, AttributeError, TypeError):
+        return JsonResponse(
+            {"detail": "Invalid request body."}, status=400
+        )
