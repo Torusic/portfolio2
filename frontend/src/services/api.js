@@ -13,7 +13,7 @@ const api=axios.create({
 
 export const portfolioAPI={
     //profile
-    getProfile:()=>api.get('/profile/'),
+    getProfile:()=>api.get('/profile/main/'),
 
     //skills
     getSkills:()=>api.get('/skills/'),
