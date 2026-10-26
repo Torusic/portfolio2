@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import cloudinary
 
 
 
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
     "cloudinary_storage",
     "cloudinary",
+    "dotenv"
 ]
 
 MIDDLEWARE = [
@@ -161,11 +163,12 @@ MEDIA_ROOT = Path(
     os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media"))
 )
 
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
-}
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True,
+)
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",   # Vite
