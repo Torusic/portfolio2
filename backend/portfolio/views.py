@@ -4,14 +4,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Profile,Skills,Experience,Project,Contact
 from .serializers import ProfileSerializer,SkillSerializer,ProjectSerializer,ExperienceSerializer,ContactSerializer
-import json
-import os
-import secrets
 
-from django.contrib.auth import get_user_model
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+
+
 
 # Create your views here.
 class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
